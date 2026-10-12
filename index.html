@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escape Room</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="case-header">
+    <div>
+      <h1 class="case-title">ESCAPE <span>ROOM</span></h1>
+      <div class="case-sub">FOUR CHAMBERS · ONE WAY OUT · NO TWO CASES ALIKE</div>
+    </div>
+    <div class="case-id">
+      CASE FILE<br>
+      <b id="caseId">#0000</b>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <nav class="rail" id="rail">
+      <div class="rail-title">Chambers</div>
+      <!-- rail items injected by game.js -->
+    </nav>
+
+    <main class="panel" id="panel">
+      <!-- active room injected by game.js -->
+    </main>
+
+  </div>
+
+  <div class="footnote">Every maze, cipher, and vault is generated fresh and verified solvable before it's shown to you. The vault puzzle and leaderboard are served by a small Python (FastAPI) backend.</div>
+
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

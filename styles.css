@@ -1,0 +1,549 @@
+/* ============================================================
+   ESCAPE ROOM — visual system
+   Theme: a locksmith's case file. Warm paper, aged brass
+   hardware, tumbler-dial interaction reused across puzzles.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --bg:         #F3EDDE;
+  --panel:      #FBF8F1;
+  --panel-2:    #F0E9D6;
+  --hairline:   #DED0AE;
+  --brass:      #8A6A34;
+  --brass-light:#A9803F;
+  --brass-dim:  #CBB57F;
+  --brass-btn:  #CDA95C;
+  --ink:        #2B2416;
+  --ink-dim:    #766B54;
+  --vault:      #3F7A34;
+  --alarm:      #B23A32;
+  --shadow-deep: rgba(90,70,30,.14);
+
+  --display: 'Rajdhani', sans-serif;
+  --body: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+*{ box-sizing:border-box; }
+
+html,body{
+  margin:0; padding:0;
+  background:
+    radial-gradient(1200px 700px at 15% -10%, #FBF6E8 0%, transparent 60%),
+    radial-gradient(1000px 600px at 110% 10%, #F7EFDA 0%, transparent 55%),
+    var(--bg);
+  color:var(--ink);
+  font-family:var(--body);
+  min-height:100vh;
+}
+
+body::before{
+  /* faint paper grain so the background doesn't read flat */
+  content:"";
+  position:fixed; inset:0;
+  pointer-events:none;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.012) 0px, rgba(0,0,0,.012) 1px, transparent 1px, transparent 3px);
+  mix-blend-mode:multiply;
+  z-index:0;
+}
+
+.app{
+  position:relative; z-index:1;
+  max-width:1040px;
+  margin:0 auto;
+  padding:28px 20px 80px;
+}
+
+/* ---------- header / case plaque ---------- */
+
+.case-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:16px;
+  border-bottom:1px solid var(--hairline);
+  padding-bottom:18px;
+  margin-bottom:26px;
+}
+
+.case-title{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(28px,5vw,42px);
+  letter-spacing:.04em;
+  color:var(--ink);
+  margin:0;
+  line-height:1;
+}
+
+.case-title span{ color:var(--brass); }
+
+.case-sub{
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--ink-dim);
+  letter-spacing:.08em;
+  margin-top:6px;
+}
+
+.case-id{
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--brass);
+  text-align:right;
+  letter-spacing:.06em;
+  line-height:1.6;
+}
+.case-id b{ color:var(--ink); display:block; font-size:15px; }
+
+/* ---------- layout: rail + panel ---------- */
+
+.layout{
+  display:grid;
+  grid-template-columns:180px 1fr;
+  gap:24px;
+  align-items:start;
+}
+
+@media (max-width:720px){
+  .layout{ grid-template-columns:1fr; }
+  .rail{ order:2; }
+  .panel{ order:1; }
+}
+
+/* ---------- progress rail: a padlock chain ---------- */
+
+.rail{
+  background:var(--panel);
+  border:1px solid var(--hairline);
+  border-radius:10px;
+  padding:18px 14px;
+  position:sticky;
+  top:20px;
+  box-shadow:0 1px 3px var(--shadow-deep);
+}
+
+.rail-title{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.12em;
+  color:var(--ink-dim);
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+
+.rail-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 6px;
+  border-radius:6px;
+  cursor:default;
+  opacity:.45;
+  transition:opacity .25s ease;
+}
+.rail-item.unlocked{ opacity:1; cursor:pointer; }
+.rail-item.active{ background:var(--panel-2); }
+.rail-item.done .rail-lock{ color:var(--vault); }
+
+.rail-lock{
+  width:22px; height:22px;
+  flex:none;
+  color:var(--brass);
+  display:flex; align-items:center; justify-content:center;
+}
+.rail-lock svg{ width:100%; height:100%; }
+
+.rail-label{
+  font-family:var(--display);
+  font-weight:600;
+  font-size:15px;
+  letter-spacing:.02em;
+  color:var(--ink);
+}
+
+.rail-connector{
+  width:2px; height:16px;
+  background:var(--hairline);
+  margin-left:17px;
+}
+
+/* ---------- content panel ---------- */
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--hairline);
+  border-radius:10px;
+  padding:clamp(20px,4vw,36px);
+  min-height:480px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 1px 4px var(--shadow-deep);
+}
+
+.panel::before{
+  content:"";
+  position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, transparent, var(--brass) 20%, var(--brass-light) 50%, var(--brass) 80%, transparent);
+  opacity:.8;
+}
+
+.room-eyebrow{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--brass);
+  margin-bottom:6px;
+}
+
+.room-title{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(22px,4vw,30px);
+  margin:0 0 10px;
+  color:var(--ink);
+}
+
+.room-flavor{
+  color:var(--ink-dim);
+  font-size:14.5px;
+  line-height:1.6;
+  max-width:60ch;
+  margin-bottom:22px;
+}
+
+/* ---------- generic pieces ---------- */
+
+.btn{
+  font-family:var(--display);
+  font-weight:600;
+  font-size:15px;
+  letter-spacing:.03em;
+  color:#2A2013;
+  background:var(--brass-btn);
+  border:none;
+  border-radius:6px;
+  padding:10px 20px;
+  cursor:pointer;
+  transition:background .18s ease, transform .06s ease;
+}
+.btn:hover{ background:#DBB86C; }
+.btn:active{ transform:translateY(1px); }
+.btn:disabled{ background:var(--hairline); color:var(--ink-dim); cursor:not-allowed; }
+
+.btn.ghost{
+  background:transparent;
+  border:1px solid var(--brass-dim);
+  color:var(--brass);
+}
+.btn.ghost:hover{ background:var(--panel-2); }
+
+.feedback{
+  font-family:var(--mono);
+  font-size:13px;
+  padding:9px 12px;
+  border-radius:6px;
+  margin-top:14px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid transparent;
+}
+.feedback.ok{ background:rgba(63,122,52,.10); border-color:rgba(63,122,52,.35); color:var(--vault); }
+.feedback.bad{ background:rgba(178,58,50,.10); border-color:rgba(178,58,50,.35); color:var(--alarm); }
+
+/* ---------- Room 1: maze ---------- */
+
+.maze-wrap{
+  display:flex;
+  flex-wrap:wrap;
+  gap:24px;
+  align-items:flex-start;
+}
+
+canvas#mazeCanvas{
+  background:var(--panel-2);
+  border:1px solid var(--hairline);
+  border-radius:8px;
+  touch-action:none;
+}
+
+.maze-side{
+  font-family:var(--mono);
+  font-size:12.5px;
+  color:var(--ink-dim);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-width:180px;
+}
+
+.maze-status-row{ display:flex; align-items:center; gap:8px; }
+.dot{ width:8px; height:8px; border-radius:50%; background:var(--hairline); flex:none; }
+.dot.on{ background:var(--vault); box-shadow:0 0 8px rgba(63,122,52,.5); }
+
+.dpad{
+  display:grid;
+  grid-template-columns:repeat(3,40px);
+  grid-template-rows:repeat(3,40px);
+  gap:4px;
+  margin-top:6px;
+}
+.dpad button{
+  background:var(--panel-2);
+  border:1px solid var(--hairline);
+  color:var(--ink);
+  border-radius:6px;
+  cursor:pointer;
+  font-size:15px;
+}
+.dpad button:hover{ background:var(--brass-dim); }
+.dpad .u{ grid-column:2; grid-row:1; }
+.dpad .l{ grid-column:1; grid-row:2; }
+.dpad .r{ grid-column:3; grid-row:2; }
+.dpad .d{ grid-column:2; grid-row:3; }
+
+/* ---------- tumbler dial (reused: cipher + final lock) ---------- */
+
+.tumbler-row{
+  display:flex;
+  gap:10px;
+  margin:18px 0;
+}
+
+.tumbler{
+  width:56px;
+  background:var(--panel-2);
+  border:1px solid var(--hairline);
+  border-radius:8px;
+  padding:4px;
+  text-align:center;
+  user-select:none;
+}
+
+.tumbler button{
+  width:100%;
+  background:none;
+  border:none;
+  color:var(--brass);
+  font-size:16px;
+  padding:4px 0;
+  cursor:pointer;
+  line-height:1;
+}
+.tumbler button:hover{ color:var(--brass-light); }
+
+.tumbler-digit{
+  font-family:var(--mono);
+  font-size:26px;
+  font-weight:600;
+  color:var(--ink);
+  background:var(--panel);
+  border:1px solid var(--hairline);
+  border-radius:4px;
+  padding:6px 0;
+  margin:2px 0;
+}
+
+/* ---------- Room 2: signal panel ---------- */
+
+.signal-lights{
+  display:flex;
+  gap:12px;
+  margin:18px 0 14px;
+}
+
+.signal-light{
+  width:54px; height:54px;
+  border-radius:8px;
+  background:var(--panel-2);
+  border:1px solid var(--hairline);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--mono);
+  font-size:22px;
+  font-weight:600;
+  color:var(--ink-dim);
+  transition:background .15s ease, color .15s ease, transform .15s ease, border-color .15s ease;
+}
+.signal-light.lit{
+  background:var(--brass-btn);
+  color:#2A2013;
+  border-color:var(--brass-btn);
+  transform:scale(1.08);
+  box-shadow:0 2px 8px var(--shadow-deep);
+}
+.signal-light.filled{
+  background:var(--panel);
+  border-color:var(--brass-dim);
+  color:var(--ink);
+}
+
+.keypad{
+  display:grid;
+  grid-template-columns:repeat(5,52px);
+  gap:8px;
+  margin:16px 0 6px;
+}
+.keypad button{
+  width:52px; height:52px;
+  border-radius:8px;
+  background:var(--panel-2);
+  border:1px solid var(--hairline);
+  font-family:var(--mono);
+  font-size:18px;
+  font-weight:600;
+  color:var(--ink);
+  cursor:pointer;
+  transition:background .15s ease, border-color .15s ease;
+}
+.keypad button:hover:not(:disabled){ background:var(--brass-dim); border-color:var(--brass); }
+.keypad button:disabled{ opacity:.4; cursor:not-allowed; }
+
+/* ---------- evidence recap (Room 4) ---------- */
+
+.evidence-box{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin:0 0 20px;
+}
+
+.evidence-card{
+  background:var(--panel-2);
+  border:1px solid var(--hairline);
+  border-radius:8px;
+  padding:10px 16px;
+  min-width:120px;
+}
+
+.evidence-label{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+  margin-bottom:4px;
+}
+
+.evidence-value{
+  font-family:var(--mono);
+  font-size:22px;
+  font-weight:600;
+  color:var(--brass);
+  letter-spacing:.1em;
+}
+
+/* ---------- Room 3: the vault scale ---------- */
+
+.scale-svg{
+  display:block;
+  margin:6px auto 18px;
+  max-width:340px;
+  width:100%;
+  height:auto;
+}
+
+#beamGroup{
+  transition:transform .4s ease;
+}
+
+.weight-row{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:12px;
+}
+
+.weight-row-label{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+  width:70px;
+  flex:none;
+}
+
+.weight-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  min-height:44px;
+  flex:1;
+  border:1px dashed var(--hairline);
+  border-radius:8px;
+  padding:6px;
+}
+
+.weight-chip{
+  width:40px; height:40px;
+  border-radius:8px;
+  background:var(--panel-2);
+  border:1px solid var(--hairline);
+  font-family:var(--mono);
+  font-size:16px;
+  font-weight:700;
+  color:var(--ink);
+  cursor:pointer;
+  transition:background .15s ease, border-color .15s ease, transform .1s ease;
+}
+.weight-chip:hover{ border-color:var(--brass); transform:translateY(-2px); }
+.weight-chip:active{ transform:translateY(0) scale(.95); }
+
+/* ---------- win screen ---------- */
+
+.win{
+  text-align:center;
+  padding:30px 10px 10px;
+}
+.win-code{
+  font-family:var(--mono);
+  font-size:40px;
+  letter-spacing:.2em;
+  color:var(--vault);
+  margin:14px 0;
+}
+
+.leaderboard-submit{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+
+.text-input{
+  font-family:var(--body);
+  font-size:14px;
+  color:var(--ink);
+  background:var(--panel-2);
+  border:1px solid var(--hairline);
+  border-radius:6px;
+  padding:9px 12px;
+  min-width:200px;
+}
+.text-input:focus{
+  outline:none;
+  border-color:var(--brass);
+}
+
+/* ---------- misc ---------- */
+
+.footnote{
+  margin-top:30px;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--ink-dim);
+  text-align:center;
+  opacity:.7;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; }
+}
